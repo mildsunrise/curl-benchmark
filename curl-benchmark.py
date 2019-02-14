@@ -66,6 +66,7 @@ ellipsis = lambda text, l: text[:l-1] + "\u2026" if len(text) > l else text
 render_row = lambda data: colspacing.join(
     c["render"](ellipsis(text, c["length"]), c["length"]) for text, c in zip(data, columns))
 row_length = sum(col["length"] for col in columns) + len(colspacing) * (len(columns)-1)
+total_time = 0.0
 
 # Print heading rows
 def print_heading():
@@ -85,6 +86,7 @@ records = []
 requests = 0
 
 def call_curl(url):
+    global total_time
     time_metrics = ["namelookup", "connect", "appconnect", "pretransfer", "starttransfer", "total"]
     curl_vars = [ "http_code" ] + [ "time_"+n for n in time_metrics ]
     format_string = "\\n".join("%%{%s}" % v for v in curl_vars)
@@ -96,6 +98,7 @@ def call_curl(url):
         print("FAIL (%d): %s" % (err.returncode, ", ".join(fail_lines)))
         return
     vars = dict(zip(curl_vars, output.decode("ascii").splitlines()))
+    total_time += float(vars["time_total"])
     last_metric = 0
     metrics = []
     for metric in time_metrics:
@@ -111,6 +114,7 @@ def call_curl(url):
         print("Request [%s], failures %d" % (tag, requests + 1 - len(records)), end="\r")
     else:
         print(render_row( col["value"](render) for col in columns ))
+    
 
 try:
     while options.n is None or requests < options.n:
@@ -140,4 +144,5 @@ for label, func in aggregation_functions:
     rf = "dev_value" if func is dev else "value"
     print(boldIf(render_row( (col[rf] if rf in col else col["value"])(render) for col in columns ), func is avg))
 print(("requests: %d    samples: %d    failures: %d" % (requests, len(records), requests - len(records))).center(row_length))
+print ("\tTotal time: {0:.2f} seconds".format(total_time))
 print()
