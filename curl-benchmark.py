@@ -100,6 +100,7 @@ def call_curl(url):
     metrics = []
     for metric in time_metrics:
         metric = int(round(float(vars["time_"+metric].replace(",", "."))*1000))
+        if metric == 0: metric = last_metric
         metrics.append(metric - last_metric)
         last_metric = metric
 
