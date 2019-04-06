@@ -52,7 +52,7 @@ time_column_data = [
     ("TCP\nconnect", 3),
     ("SSL\nhandshake", 5),
     ("Request\nsent", 4),
-    ("TTFB", 2),
+    ("  TTFB", 2),
     ("Content\ndownload", 4),
 ]
 time_columns = [ time_metric_col(i, *args) for i, args in enumerate(time_column_data) ]
