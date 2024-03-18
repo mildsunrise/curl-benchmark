@@ -54,6 +54,7 @@ time_column_data = [
     ("Request\nsent", 4),
     ("  TTFB", 2),
     ("Content\ndownload", 4),
+    (" Total", 8),
 ]
 time_columns = [ time_metric_col(i, *args) for i, args in enumerate(time_column_data) ]
 
@@ -103,6 +104,7 @@ def call_curl(url):
         if metric == 0: metric = last_metric
         metrics.append(metric - last_metric)
         last_metric = metric
+    metrics.append(last_metric) # now, last_metric contains "total"
 
     records.append(metrics)
     render = { "metrics": metrics, "first": vars["http_code"] }
